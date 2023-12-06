@@ -2,7 +2,7 @@ from pathlib import Path
 import pandas as pd
 import datetime
 from input_data import InputDataHandler
-from gr7j import ModelGr6j
+from gr7j import ModelGr7j
 import plotly.graph_objects as go
 
 data_path = Path('/home/ibrahim/gr7j/data')
@@ -10,7 +10,7 @@ df = pd.read_pickle(data_path / 'L0123001.pkl')
 df.columns = ['date', 'precipitation', 'temperature', 'evapotranspiration', 'flow', 'flow_mm']
 df.index = df['date']
 
-inputs = InputDataHandler(ModelGr6j, df)
+inputs = InputDataHandler(ModelGr7j, df)
 start_date = datetime.datetime(1989, 1, 1, 0, 0)
 end_date = datetime.datetime(1999, 12, 31, 0, 0)
 inputs = inputs.get_sub_period(start_date, end_date)
@@ -23,9 +23,9 @@ parameters = {
         "X4": 2.218,
         "X5": 0.424,
         "X6": 4.759,
-        "X7": 250
+        "X7": 0.05
     }
-model = ModelGr6j(parameters)
+model = ModelGr7j(parameters)
 model.set_parameters(parameters)  # Re-define the parameters for demonstration purpose.
 
 # Initial state :

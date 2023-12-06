@@ -3,7 +3,7 @@ use super::s_curves::{s_curves1, s_curves2};
 
 
 pub fn gr7j(parameters: &Vec<f64>, rainfall: &mut ArrayViewMut1<'_, f64>, evapotranspiration: &mut ArrayViewMut1<'_, f64>, states: &mut ArrayViewMut1<'_, f64>, uh1: &mut ArrayViewMut1<'_, f64>, uh2: &mut ArrayViewMut1<'_, f64>, flow: &mut ArrayViewMut1<'_, f64>) {
-    let storage_fraction = 0.9;
+    // let storage_fraction = 0.9;
     let exp_fraction = 0.4;
 
     // Get parameters :
@@ -13,6 +13,8 @@ pub fn gr7j(parameters: &Vec<f64>, rainfall: &mut ArrayViewMut1<'_, f64>, evapot
     let x4 = parameters[3];
     let x5 = parameters[4];
     let x6 = parameters[5];
+    let x7 = parameters[6];
+    let storage_fraction = x7;
 
     // Initialize hydrogramme :
     let nuh1 = x4.ceil() as usize;

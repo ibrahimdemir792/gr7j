@@ -2,10 +2,10 @@ import warnings
 import numpy as np
 from pandas import DataFrame
 from model_interface import ModelGrInterface
-from gr7jmodule import gr6j
+from gr7jmodule import gr7j
 
 
-class ModelGr6j(ModelGrInterface):
+class ModelGr7j(ModelGrInterface):
     """
     GR6J model implementation based on fortran function from IRSTEA package airGR :
     https://cran.r-project.org/web/packages/airGR/index.html
@@ -18,12 +18,13 @@ class ModelGr6j(ModelGrInterface):
                        X4 = unit hydrograph time constant [d]
                        X5 = intercatchment exchange threshold [-]
                        X6 = coefficient for emptying exponential store [mm]
+                       X7 = my coefficient
     """
 
-    name = 'gr6j'
-    model = gr6j
+    name = 'gr7j'
+    model = gr7j
     frequency = ['D', 'B', 'C']
-    parameters_names = ["X1", "X2", "X3", "X4", "X5", "X6"]
+    parameters_names = ["X1", "X2", "X3", "X4", "X5", "X6", "X7"]
     states_names = ["production_store", "routing_store", "exponential_store", "uh1", "uh2"]
 
     def __init__(self, parameters):
@@ -47,6 +48,7 @@ class ModelGr6j(ModelGrInterface):
                 X4 = unit hydrograph time constant [d]
                 X5 = intercatchment exchange threshold [-]
                 X6 = coefficient for emptying exponential store [mm]
+                X7 = my coefficient
         """
         for parameter_name in self.parameters_names:
             if not parameter_name in parameters:
@@ -127,7 +129,7 @@ class ModelGr6j(ModelGrInterface):
         return states
     
     def _run_model(self, inputs):
-        parameters = [self.parameters["X1"], self.parameters["X2"], self.parameters["X3"], self.parameters["X4"], self.parameters["X5"], self.parameters["X6"]]
+        parameters = [self.parameters["X1"], self.parameters["X2"], self.parameters["X3"], self.parameters["X4"], self.parameters["X5"], self.parameters["X6"], self.parameters["X7"]]
         precipitation = inputs['precipitation'].values.astype(float)
         evapotranspiration = inputs['evapotranspiration'].values.astype(float)
         states = np.zeros(3, dtype=float)
