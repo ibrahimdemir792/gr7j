@@ -17,13 +17,13 @@ inputs = inputs.get_sub_period(start_date, end_date)
 
 # Set the model :
 parameters = {
-        "X1": 242.257,
-        "X2": 0.637,
-        "X3": 53.517,
-        "X4": 2.218,
-        "X5": 0.424,
-        "X6": 4.759,
-        "X7": 0.05
+        "X1": 233.269,
+        "X2": -1.72214,
+        "X3": 124.248,
+        "X4": 2.4724,
+        "X5": 0.491283,
+        "X6": 4.49705,
+        "X7": 0.655097
     }
 model = ModelGr7j(parameters)
 model.set_parameters(parameters)  # Re-define the parameters for demonstration purpose.
