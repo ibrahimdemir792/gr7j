@@ -7,12 +7,22 @@ import plotly.graph_objects as go
 from input_data import InputDataHandler
 from gr7j import ModelGr7j
 
+
+""" LOAD CALIBRATION DATA 
+    Datasets are available as Pandas dataframe pickle in the project repository.
+"""
 data_path = Path('/home/ibrahim/gr7j/data')
 df = pd.read_pickle(data_path / 'L0123001.pkl')
 df.columns = ['date', 'precipitation', 'temperature', 'evapotranspiration', 'flow', 'flow_mm']
 df.index = df['date']
 print(df.head())
 
+
+""" SPOTPY INTERFACE
+To use Spotpy, we need to create an interface for our model.
+In particular, this interface provides an objective function methods to evaluate the model results.
+Here we use NSE (nashsutcliffe) between computed and observed flow.
+"""
 class SpotpySetup(object):
     """
     Interface to use the model with spotpy
@@ -27,7 +37,7 @@ class SpotpySetup(object):
                        spotpy.parameter.Uniform('x4', 0.5, 10.0),
                        spotpy.parameter.Uniform('x5', -4.0, 4.0),
                        spotpy.parameter.Uniform('x6', 0.0, 20.0),
-                       spotpy.parameter.Uniform('x7', 0.0, 1.0),
+                       spotpy.parameter.Uniform('x7', 0.05, 0.95, optguess=0.90),
                        ]
 
     def parameters(self):
@@ -40,9 +50,9 @@ class SpotpySetup(object):
     def evaluation(self):
         return self.data['flow_mm'].values
 
-    def objectivefunction(self, simulation, evaluation):
-        res = - sqrt(mean((simulation - evaluation) ** 2.0))
-        return res
+    def objectivefunction(self, evaluation, simulation):
+        nse = spotpy.objectivefunctions.nashsutcliffe(evaluation, simulation)
+        return nse
     
     def _run(self, x1, x2, x3, x4, x5, x6, x7):
         parameters = {"X1": x1, "X2": x2, "X3": x3, "X4": x4, "X5": x5, "X6": x6, "X7": x7}
@@ -51,8 +61,12 @@ class SpotpySetup(object):
         return outputs['flow'].values
     
 
+""" CALIBRATION
+To calibrate model select a sub-period from dataset
+To find optimal model parameters, several optimisation algorithm can be tested available in spotpy.
+"""
 # Reduce the dataset to a sub period :
-start_date = datetime.datetime(1997, 1, 1, 0, 0)
+start_date = datetime.datetime(1998, 1, 1, 0, 0)
 end_date = datetime.datetime(2008, 1, 1, 0, 0)
 mask = (df['date'] >= start_date) & (df['date'] <= end_date)
 calibration_data = df.loc[mask]
@@ -60,7 +74,7 @@ calibration_data = df.loc[mask]
 spotpy_setup = SpotpySetup(calibration_data)
 
 # sampler = spotpy.algorithms.mc(spotpy_setup, dbformat='ram')
-sampler = spotpy.algorithms.mcmc(spotpy_setup, dbformat='ram')
+sampler = spotpy.algorithms.mcmc(spotpy_setup, dbformat='ram', parallel='seq', optimization_direction = "maximize")
 # sampler = spotpy.algorithms.mle(spotpy_setup, dbformat='ram')
 # sampler = spotpy.algorithms.lhs(spotpy_setup, dbformat='ram')
 # sampler = spotpy.algorithms.sceua(spotpy_setup, dbformat='ram')
@@ -68,12 +82,17 @@ sampler = spotpy.algorithms.mcmc(spotpy_setup, dbformat='ram')
 # sampler = spotpy.algorithms.sa(spotpy_setup, dbformat='ram')
 # sampler = spotpy.algorithms.rope(spotpy_setup, dbformat='ram')
 
-sampler.sample(2000)
+sampler.sample(20000)
 results=sampler.getdata() 
-best_parameters = spotpy.analyser.get_best_parameterset(results)
+best_parameters = spotpy.analyser.get_best_parameterset(results, maximize=True)
+# print(spotpy.analyser.get_minlikeindex(results)) # To see min objective function
+# print(spotpy.analyser.get_maxlikeindex(results)) # To see max objective function
 print(best_parameters)
 
 
+""" VALIDATION
+Finally, validate calibration on another time period
+"""
 parameters = list(best_parameters[0])
 parameters = {"X1": parameters[0], "X2": parameters[1], "X3": parameters[2], "X4": parameters[3], "X5": parameters[4], "X6": parameters[5], "X7": parameters[6]}
 
@@ -89,11 +108,6 @@ outputs = model.run(validation_data)
 filtered_input = validation_data[validation_data.index >= datetime.datetime(1990, 1, 1, 0, 0)]
 filtered_output = outputs[outputs.index >= datetime.datetime(1990, 1, 1, 0, 0)]
 
-rmse = sqrt(mean((filtered_output['flow'] - filtered_input['flow_mm'].values) ** 2.0))
-print(f"rmse: {rmse}")
-
-nse = spotpy.objectivefunctions.nashsutcliffe(filtered_output['flow'], filtered_input['flow_mm'])
-print(f"nse: {nse}")
 
 # fig = go.Figure([
 #     go.Scatter(x=filtered_output.index, y=filtered_output['flow'], name="Calculated"),

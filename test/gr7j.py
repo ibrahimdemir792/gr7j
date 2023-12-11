@@ -7,18 +7,18 @@ from gr7jmodule import gr7j
 
 class ModelGr7j(ModelGrInterface):
     """
-    GR6J model implementation based on fortran function from IRSTEA package airGR :
+    GR7J model implementation based on fortran function from IRSTEA package airGR :
     https://cran.r-project.org/web/packages/airGR/index.html
 
     :param model_inputs: Input data handler, should contain precipitation and evapotranspiration time series
-    :param parameters: List of float of length 4 that contain :
+    :param parameters: List of float of length 7 that contain :
                        X1 = production store capacity [mm],
                        X2 = inter-catchment exchange coefficient [mm/d],
                        X3 = routing store capacity [mm]
                        X4 = unit hydrograph time constant [d]
                        X5 = intercatchment exchange threshold [-]
                        X6 = coefficient for emptying exponential store [mm]
-                       X7 = my coefficient
+                       X7 = flow split ratio
     """
 
     name = 'gr7j'

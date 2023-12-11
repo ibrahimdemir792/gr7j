@@ -4,6 +4,7 @@ import datetime
 from input_data import InputDataHandler
 from gr7j import ModelGr7j
 import plotly.graph_objects as go
+import spotpy
 
 data_path = Path('/home/ibrahim/gr7j/data')
 df = pd.read_pickle(data_path / 'L0123001.pkl')
@@ -17,13 +18,13 @@ inputs = inputs.get_sub_period(start_date, end_date)
 
 # Set the model :
 parameters = {
-        "X1": 233.269,
-        "X2": -1.72214,
-        "X3": 124.248,
-        "X4": 2.4724,
-        "X5": 0.491283,
-        "X6": 4.49705,
-        "X7": 0.655097
+        "X1": 170.532,
+        "X2": 0.457612,
+        "X3": 46.6777,
+        "X4": 3.73663,
+        "X5": 0.435072,
+        "X6": 17.8694,
+        "X7": 0.292645
     }
 model = ModelGr7j(parameters)
 model.set_parameters(parameters)  # Re-define the parameters for demonstration purpose.
@@ -40,6 +41,9 @@ model.set_states(initial_states)
 
 outputs = model.run(inputs.data)
 print(outputs.head())
+
+nse = spotpy.objectivefunctions.nashsutcliffe(inputs.data['flow_mm'], outputs['flow'])
+print(f"nse: {nse}")
 
 fig = go.Figure([
     go.Scatter(x=outputs.index, y=outputs['flow'], name="Calculated"),
