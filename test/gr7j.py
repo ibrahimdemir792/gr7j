@@ -48,7 +48,7 @@ class ModelGr7j(ModelGrInterface):
                 X4 = unit hydrograph time constant [d]
                 X5 = intercatchment exchange threshold [-]
                 X6 = coefficient for emptying exponential store [mm]
-                X7 = my coefficient
+                X7 = flow split ratio
         """
         for parameter_name in self.parameters_names:
             if not parameter_name in parameters:

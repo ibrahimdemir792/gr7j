@@ -60,7 +60,7 @@ class InputDataHandler(object):
         if not (ptypes.is_datetime64_any_dtype(self.data.index) or ptypes.is_period_dtype(self.data.index)):
             raise TypeError('Input data index should be datetime or period object. Received : {} instead.'.format(self.data.index.dtypes))
 
-        if ptypes.is_period_dtype(self.data.index):
+        if isinstance(self.data.index.dtype, pd.PeriodDtype):
             self.data.index = self.data.index.to_timestamp()
 
         for prerequisite in self.Model.input_requirements:

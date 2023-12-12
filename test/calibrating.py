@@ -6,6 +6,7 @@ import spotpy
 import plotly.graph_objects as go
 from input_data import InputDataHandler
 from gr7j import ModelGr7j
+import json
 
 
 """ LOAD CALIBRATION DATA 
@@ -95,6 +96,8 @@ Finally, validate calibration on another time period
 """
 parameters = list(best_parameters[0])
 parameters = {"X1": parameters[0], "X2": parameters[1], "X3": parameters[2], "X4": parameters[3], "X5": parameters[4], "X6": parameters[5], "X7": parameters[6]}
+with open ("parameters.json", "w") as file:
+    json.dump(parameters, file)
 
 start_date = datetime.datetime(1989, 1, 1, 0, 0)
 end_date = datetime.datetime(1999, 12, 31, 0, 0)
@@ -109,9 +112,9 @@ filtered_input = validation_data[validation_data.index >= datetime.datetime(1990
 filtered_output = outputs[outputs.index >= datetime.datetime(1990, 1, 1, 0, 0)]
 
 
-# fig = go.Figure([
-#     go.Scatter(x=filtered_output.index, y=filtered_output['flow'], name="Calculated"),
-#     go.Scatter(x=filtered_input.index, y=filtered_input['flow_mm'], name="Observed"),
-# ])
-# fig.show()
+fig = go.Figure([
+    go.Scatter(x=filtered_output.index, y=filtered_output['flow'], name="Calculated"),
+    go.Scatter(x=filtered_input.index, y=filtered_input['flow_mm'], name="Observed"),
+])
+fig.show()
 
