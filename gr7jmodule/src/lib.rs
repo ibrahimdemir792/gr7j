@@ -12,6 +12,7 @@ mod gr5j;
 mod gr6j;
 mod gr4h;
 mod gr7j;
+mod gr4a;
 
 #[cfg(test)]
 mod tests;
@@ -125,6 +126,22 @@ fn gr7j_py(parameters: &PyList, rainfall: &PyArray1<f64>, evapotranspiration: &P
 }
 
 
+#[pyfunction]
+#[pyo3(name = "gr4a")]
+fn gr4a_py(parameters: &PyList, rainfall: &PyArray1<f64>, evapotranspiration: &PyArray1<f64>, states: &PyArray1<f64>, uh1: &PyArray1<f64>, uh2: &PyArray1<f64>, flow: &PyArray1<f64>) {
+
+    let v_param = parameters.extract::<Vec<f64>>().unwrap();
+
+    let mut n_rainfall = unsafe { rainfall.as_array_mut() }; // Convert to ndarray type
+    let mut n_evap = unsafe { evapotranspiration.as_array_mut() };
+    let mut n_states = unsafe { states.as_array_mut() };
+    let mut n_uh1 = unsafe { uh1.as_array_mut() };
+    let mut n_uh2 = unsafe { uh2.as_array_mut() };
+    let mut n_flow = unsafe { flow.as_array_mut() };
+    gr4a::gr4a(&v_param, &mut n_rainfall, &mut n_evap, &mut n_states, &mut n_uh1, &mut n_uh2, &mut n_flow);
+}
+
+
 /// A Python module implemented in Rust.
 #[pymodule]
 fn gr7jmodule(_py: Python, m: &PyModule) -> PyResult<()> {
@@ -135,5 +152,6 @@ fn gr7jmodule(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(gr6j_py, m)?)?;
     m.add_function(wrap_pyfunction!(gr4h_py, m)?)?;
     m.add_function(wrap_pyfunction!(gr7j_py, m)?)?;
+    m.add_function(wrap_pyfunction!(gr4a_py, m)?)?;
     Ok(())
 }

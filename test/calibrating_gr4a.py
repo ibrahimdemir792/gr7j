@@ -5,7 +5,7 @@ from numpy import sqrt, mean
 import spotpy
 import plotly.graph_objects as go
 from input_data import InputDataHandler
-from gr7j import ModelGr7j
+from gr4a import ModelGr4a
 import json
 
 
@@ -31,21 +31,19 @@ class SpotpySetup(object):
 
     def __init__(self, data):
         self.data = data
-        self.model_inputs = InputDataHandler(ModelGr7j, self.data)
+        self.model_inputs = InputDataHandler(ModelGr4a, self.data)
         self.params = [spotpy.parameter.Uniform('x1', 0.0, 2500.0),
                        spotpy.parameter.Uniform('x2', -5.0, 5.0),
                        spotpy.parameter.Uniform('x3', 0.0, 1000.0),
                        spotpy.parameter.Uniform('x4', 0.5, 10.0),
-                       spotpy.parameter.Uniform('x5', -4.0, 4.0),
-                       spotpy.parameter.Uniform('x6', 0.0, 20.0),
-                       spotpy.parameter.Uniform('x7', 0.05, 0.95, optguess=0.90),
+                       spotpy.parameter.Uniform('x5', 0.05, 0.95, optguess=0.90),
                        ]
 
     def parameters(self):
         return spotpy.parameter.generate(self.params)
 
     def simulation(self, vector):
-        simulations = self._run(x1=vector[0], x2=vector[1], x3=vector[2], x4=vector[3], x5=vector[4], x6=vector[5], x7=vector[6])
+        simulations = self._run(x1=vector[0], x2=vector[1], x3=vector[2], x4=vector[3], x5=vector[4])
         return simulations
 
     def evaluation(self):
@@ -55,9 +53,9 @@ class SpotpySetup(object):
         nse = spotpy.objectivefunctions.nashsutcliffe(evaluation, simulation)
         return nse
     
-    def _run(self, x1, x2, x3, x4, x5, x6, x7):
-        parameters = {"X1": x1, "X2": x2, "X3": x3, "X4": x4, "X5": x5, "X6": x6, "X7": x7}
-        model = ModelGr7j(parameters)
+    def _run(self, x1, x2, x3, x4, x5):
+        parameters = {"X1": x1, "X2": x2, "X3": x3, "X4": x4, "X5": x5}
+        model = ModelGr4a(parameters)
         outputs = model.run(self.model_inputs.data)
         return outputs['flow'].values
     
@@ -68,7 +66,7 @@ To find optimal model parameters, several optimisation algorithm can be tested a
 """
 # Reduce the dataset to a sub period :
 start_date = datetime.datetime(1998, 1, 1, 0, 0)
-end_date = datetime.datetime(2004, 1, 1, 0, 0)
+end_date = datetime.datetime(2008, 1, 1, 0, 0)
 mask = (df['date'] >= start_date) & (df['date'] <= end_date)
 calibration_data = df.loc[mask]
 
@@ -96,7 +94,7 @@ print(best_parameters)
 Finally, validate calibration on another time period
 """
 parameters = list(best_parameters[0])
-parameters = {"X1": parameters[0], "X2": parameters[1], "X3": parameters[2], "X4": parameters[3], "X5": parameters[4], "X6": parameters[5], "X7": parameters[6]}
+parameters = {"X1": parameters[0], "X2": parameters[1], "X3": parameters[2], "X4": parameters[3], "X5": parameters[4]}
 with open ("parameters.json", "w") as file:
     json.dump(parameters, file)
 
@@ -105,7 +103,7 @@ end_date = datetime.datetime(1999, 12, 31, 0, 0)
 mask = (df['date'] >= start_date) & (df['date'] <= end_date)
 validation_data = df.loc[mask]
 
-model = ModelGr7j(parameters)
+model = ModelGr4a(parameters)
 outputs = model.run(validation_data)
 
 # Remove the first year used to warm up the model :
