@@ -12,7 +12,7 @@ import json
 """ LOAD CALIBRATION DATA 
     Datasets are available as Pandas dataframe pickle in the project repository.
 """
-data_path = Path('/home/ibrahim/gr7j/data')
+data_path = Path.cwd().parent / 'data'
 df = pd.read_pickle(data_path / 'L0123001.pkl')
 df.columns = ['date', 'precipitation', 'temperature', 'evapotranspiration', 'flow', 'flow_mm']
 df.index = df['date']
