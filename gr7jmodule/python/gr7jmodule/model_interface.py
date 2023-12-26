@@ -1,5 +1,5 @@
 import abc
-from input_data import InputDataHandler, InputRequirements
+from gr7jmodule.input_data import InputDataHandler, InputRequirements
 
 
 class ModelGrInterface(object, metaclass=abc.ABCMeta):

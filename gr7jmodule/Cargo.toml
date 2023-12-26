@@ -1,6 +1,6 @@
 [package]
 name = "gr7jmodule"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -8,7 +8,10 @@ edition = "2021"
 name = "gr7jmodule"
 crate-type = ["cdylib"]
 
+[package.metadata.maturin]
+name = "gr7jmodule._gr7jmodule"
+
 [dependencies]
 ndarray = "0.15.6"
 numpy = "0.18.0"
-pyo3 = "0.18.0"
+pyo3 = {version = "0.18.0", features=["extension-module"]}

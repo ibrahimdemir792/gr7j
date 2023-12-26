@@ -2,7 +2,7 @@ import warnings
 import numpy as np
 from pandas import DataFrame
 from gr7jmodule.model_interface import ModelGrInterface
-from gr7jmodule import gr2m
+from gr7jmodule.gr7jmodule import gr2m
 
 
 class ModelGr2m(ModelGrInterface):

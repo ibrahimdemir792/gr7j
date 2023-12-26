@@ -1,8 +1,8 @@
 import warnings
 import numpy as np
 from pandas import DataFrame
-from hydrogr.model_interface import ModelGrInterface
-from hydrogr._hydrogr import gr5j
+from gr7jmodule.model_interface import ModelGrInterface
+from gr7jmodule.gr7jmodule import gr5j
 
 
 class ModelGr5j(ModelGrInterface):

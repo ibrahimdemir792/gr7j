@@ -1,46 +1,47 @@
 import warnings
-from hydrogr.model_interface import ModelGrInterface
-from hydrogr._hydrogr import gr4j
 import numpy as np
 from pandas import DataFrame
+from gr7jmodule.model_interface import ModelGrInterface
+from gr7jmodule.gr7jmodule import gr4h
 
 
-class ModelGr4j(ModelGrInterface):
-    """GR4J model implementation based on fortran function from IRSTEA package airGR :
+class ModelGr4h(ModelGrInterface):
+    """
+    GR4H model implementation based on fortran function from IRSTEA package airGR :
     https://cran.r-project.org/web/packages/airGR/index.html
 
-    Args:
-        parameters (list):List of float of length 4 that contain :
-            X1 = production store capacity [mm],
-            X2 = inter-catchment exchange coefficient [mm/d],
-            X3 = routing store capacity [mm]
-            X4 = unit hydrograph time constant [d]
+    :param model_inputs: Input data handler, should contain precipitation and evapotranspiration time series
+    :param parameters: List of float of length 4 that contain :
+                       X1 = production store capacity [mm],
+                       X2 = inter-catchment exchange coefficient [mm/h],
+                       X3 = routing store capacity [mm]
+                       X4 = unit hydrograph time constant [h]
     """
 
-    name = 'gr4j'
-    model = gr4j
-    frequency = ['D', 'B', 'C']
+    name = 'gr4h'
+    model = gr4h
+    frequency = ['H']
     parameters_names = ["X1", "X2", "X3", "X4"]
     states_names = ["production_store", "routing_store", "uh1", "uh2"]
-
+    
     def __init__(self, parameters):
         super().__init__(parameters)
-        
+
         # Default states values
         self.production_store = 0.3
         self.routing_store = 0.5
-        self.uh1 = np.zeros(20, dtype=float)
-        self.uh2 = np.zeros(40, dtype=float)
-
+        self.uh1 = np.zeros(20*24, dtype=float)
+        self.uh2 = np.zeros(40*24, dtype=float)
+        
     def set_parameters(self, parameters):
-        """Set model parameters
+        """
+        Set model parameters
 
-        Args:
-            parameters (dict): Dictionary that contain :
-                X1 = production store capacity [mm],
-                X2 = inter-catchment exchange coefficient [mm/d],
-                X3 = routing store capacity [mm]
-                X4 = unit hydrograph time constant [d]
+        :param parameters: List of float of length 4 that contain :
+                           X1 = production store capacity [mm],
+                           X2 = inter-catchment exchange coefficient [mm/h],
+                           X3 = routing store capacity [mm]
+                           X4 = unit hydrograph time constant [h]
         """
         for parameter_name in self.parameters_names:
             if not parameter_name in parameters:
@@ -63,7 +64,7 @@ class ModelGr4j(ModelGrInterface):
         """Set the model state
 
         Args:
-            states (dict): Dictionary with keys ["X1", "X2", "X3", "X4"]
+            states (dict): Dictionary that contains the model state.
         """
         for state_name in self.states_names:
             if not state_name in states:
@@ -87,13 +88,13 @@ class ModelGr4j(ModelGrInterface):
             assert isinstance(states["uh1"], (np.ndarray, np.generic) )
             self.uh1 = states["uh1"]
         else:
-            self.uh1 = np.zeros(20, dtype=float)
+            self.uh1 = np.zeros(20*24, dtype=float)
 
         if states["uh2"] is not None:
             assert isinstance(states["uh2"], (np.ndarray, np.generic) )
             self.uh2 = states["uh2"]
         else:
-            self.uh2 = np.zeros(40, dtype=float)
+            self.uh2 = np.zeros(40*24, dtype=float)
             
     def get_states(self):
         """Get model states as dict.
@@ -110,9 +111,9 @@ class ModelGr4j(ModelGrInterface):
         return states
     
     def _run_model(self, inputs):
-        parameters = [self.parameters["X1"], self.parameters["X2"], self.parameters["X3"], self.parameters["X4"]]
         precipitation = inputs['precipitation'].values.astype(float)
         evapotranspiration = inputs['evapotranspiration'].values.astype(float)
+        parameters = [self.parameters["X1"], self.parameters["X2"], self.parameters["X3"], self.parameters["X4"]]
         states = np.zeros(2, dtype=float)
         states[0] = self.production_store * self.parameters["X1"]
         states[1] = self.routing_store * self.parameters["X3"]

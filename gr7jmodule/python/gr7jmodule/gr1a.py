@@ -1,5 +1,5 @@
 from gr7jmodule.model_interface import ModelGrInterface
-from gr7jmodule import gr1a
+from gr7jmodule.gr7jmodule import gr1a
 import numpy as np
 from pandas import DataFrame
 
